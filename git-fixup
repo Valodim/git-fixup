@@ -1,0 +1,39 @@
+#!/bin/zsh
+
+# git rev-list 'HEAD^..HEAD'
+
+if (( ! $+commands[git-deps] )); then
+    echo 'Required dependency git-deps was not found in path.' >&2
+    exit
+fi
+
+if git diff --cached --quiet; then
+    echo 'No staged changes.' >&2
+    exit
+fi
+
+git commit -m 'git-fixup temporary commit' --quiet
+if (( $? )); then
+    echo 'Failed committing index.' >&2
+fi
+
+typeset -a deps
+deps=( ${(f)"$(git deps -e master HEAD)"} )
+
+if (( $#deps == 1 )); then
+    echo "Index depends on one commit only:"
+    git log -n 1 --oneline $deps[1]
+    echo "Creating fixup commit:"
+    git commit --amend --fixup=$deps[1] --quiet
+    git log -n 1 --oneline HEAD
+elif (( $#deps == 0 )); then
+    echo "Index does not depend on any commit (just amend?)" >&2
+    git reset --soft 'HEAD^'
+else
+    echo "Index depends on more than one commit in this branch:" >&2
+    for b in $deps; do
+        echo $b
+        git log -n 1 --oneline $b
+    done
+    git reset --soft 'HEAD^'
+fi
