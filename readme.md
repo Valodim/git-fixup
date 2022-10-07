@@ -1,3 +1,9 @@
+## NOTE
+
+This repository is just a historical note. [git-absorb](https://github.com/tummychow/git-absorb) is the same idea as git-fixup, but finished and maintained.
+
+## OLD README
+
 `git fixup` is one of the few tools that made it from "hey wouldn't this be neat" into my actual daily git workflow.
 
 Invocation
